@@ -39,10 +39,15 @@ namespace DataStorageService.Endpoints.DataStorage
             var isDataSecure = WriteDataToFile(requestParameters);
             var isMetaDataSecure = WriteMetadataToFile(requestParameters.Metadata);
 
+            int responseStatus;
+
             if (isDataSecure && isMetaDataSecure)
-                Response.StatusCode = (int)HttpStatusCode.OK;
+                responseStatus = (int)HttpStatusCode.OK;
             else
-                Response.StatusCode = UnprocessableEntityHttpStatusCode;
+                responseStatus = UnprocessableEntityHttpStatusCode;
+
+            if (Response != null)
+                Response.StatusCode = responseStatus;
             return new
             {
                 Result = "Completed"
