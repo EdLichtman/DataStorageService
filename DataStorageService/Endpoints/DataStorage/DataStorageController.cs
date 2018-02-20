@@ -24,12 +24,16 @@ namespace DataStorageService.Endpoints.DataStorage
 
         }
         [HttpGet]
-        public void Ping() {
+        public object Ping()
+        {
             Response.StatusCode = (int)HttpStatusCode.OK;
-
+            return new
+            {
+                Status = "OK"
+            };
         }
         [HttpPost]
-        public void StoreFile([FromBody]StoreFileRequest requestParameters)
+        public object StoreFile([FromBody]StoreFileRequest requestParameters)
         {
             
             var isDataSecure = WriteDataToFile(requestParameters);
@@ -39,6 +43,10 @@ namespace DataStorageService.Endpoints.DataStorage
                 Response.StatusCode = (int)HttpStatusCode.OK;
             else
                 Response.StatusCode = UnprocessableEntityHttpStatusCode;
+            return new
+            {
+                Result = "Completed"
+            };
         }
 
         private bool WriteDataToFile(StoreFileRequest requestParameters) {
@@ -60,7 +68,7 @@ namespace DataStorageService.Endpoints.DataStorage
             var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName}.metadata.json";
             try
             {
-                var filePath = System.IO.File.Create();
+                var filePath = System.IO.File.Create(fileLocation);
                 var fileWriter = new StreamWriter(filePath);
                 fileWriter.Write(JsonConvert.SerializeObject(metadata));
                 fileWriter.Dispose();
@@ -73,14 +81,9 @@ namespace DataStorageService.Endpoints.DataStorage
 
         // PUT api/values/5
         [HttpPut()]
-        public void UpdateDatabaseWithPendingFiles(int id, [FromBody]string value)
+        public void ImportToDatabase(int id, [FromBody]string value)
         {
         }
 
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
     }
 }

@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using DataStorageService.AppSettings;
+using StructureMap;
 
 namespace DataStorageService
 {
@@ -21,10 +23,10 @@ namespace DataStorageService
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            //todo: add AppSettings as IAppSettings
-            services.AddMvc();
+            services.AddMvc().AddControllersAsServices();
+            return ConfigureIoC(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,6 +38,27 @@ namespace DataStorageService
             }
 
             app.UseMvc();
+        }
+        public IServiceProvider ConfigureIoC(IServiceCollection services)
+        {
+            var container = new Container();
+
+            container.Configure(config =>
+            {
+                // Register stuff in container, using the StructureMap APIs...
+                config.Scan(_ =>
+                {
+                    _.AssemblyContainingType(typeof(Startup));
+                    _.WithDefaultConventions();
+                });
+
+                //Populate the container using the service collection
+
+                config.Populate(services);
+            });
+
+            return container.GetInstance<IServiceProvider>();
+
         }
     }
 }

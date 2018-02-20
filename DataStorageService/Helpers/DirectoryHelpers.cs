@@ -17,7 +17,7 @@ namespace DataStorageService.Helpers
             return $"{GetSolutionRoot()}/DataStorageService";
         }
         public static string GetSolutionRoot() {
-            const string SolutionName = "/DataStorageServiceTests";
+            const string SolutionName = "/DataStorageService";
 
             var currentFolder = System.AppDomain.CurrentDomain.BaseDirectory;
             return currentFolder
