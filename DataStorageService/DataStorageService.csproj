@@ -10,6 +10,7 @@
     <Folder Include="Helpers\" />
     <Folder Include="Endpoints\DataStorage\" />
     <Folder Include="AppSettings\" />
+    <Folder Include="Endpoints\DataStorage\AggregateData\" />
   </ItemGroup>
 
   <ItemGroup>
