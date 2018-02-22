@@ -5,8 +5,8 @@ namespace DataStorageService.Endpoints.DataStorage
     {
         public string FileName { get; set; }
         public string RoomNumber { get; set; }
-        public int RackNumber {get;set;}
-        public string Position {get;set;}
+        public int RackIdentifier {get;set;}
+        public RackCoordinate RackCoordinates { get; set; }
         public string ConversionKey { get; set; }
     }
 }

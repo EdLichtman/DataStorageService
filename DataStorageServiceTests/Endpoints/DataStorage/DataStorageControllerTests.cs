@@ -43,8 +43,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
                 {
                     FileName = fileName,
                     RoomNumber = "D73234",
-                    RackNumber = 1,
-                    Position = "F10",
+                    RackIdentifier = 1,
+                    RackCoordinates = new RackCoordinate
+                    {
+                        X = 1,
+                        Y = 1
+                    },
                     ConversionKey = "1",
                 },
 
@@ -71,8 +75,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
                 {
                     FileName = fileName,
                     RoomNumber = "D73234",
-                    RackNumber = 1,
-                    Position = "F10",
+                    RackIdentifier = 1,
+                    RackCoordinates = new RackCoordinate
+                    {
+                        X = 1,
+                        Y = 1
+                    },
                     ConversionKey = "1",
                 },
 
