@@ -1,0 +1,5 @@
+New-VMSwitch -name ExternalSwitch -NetAdapterName Wi-Fi -AllowManagementOS $true
+New-VMSwitch -name InternalSwitch -SwitchType Internal
+cmd 'docker-machine create DataStorageService -d "hyperv"'
+cmd 'Net stop com.docker.service'
+cmd 'Net start com.docker.service'

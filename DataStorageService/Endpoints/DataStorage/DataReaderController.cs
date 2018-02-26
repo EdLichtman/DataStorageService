@@ -20,7 +20,6 @@ namespace DataStorageService.Endpoints
 
         [HttpPost]
         public async Task<IActionResult> AddDataPoints([FromBody]IList<AggregateDataPoint> dataPoints)
-        //public async Task<IActionResult> AddDataPoints([FromBody]object dataPoints)
         {
             if (!ModelState.IsValid)
             {

@@ -85,7 +85,7 @@ namespace DataStorageService.Endpoints.DataStorage
         }
 
         // PUT api/values/5
-        [HttpPut()]
+        [HttpPut]
         public void ImportToDatabase(int id, [FromBody]string value)
         {
         }
