@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.IO;
 using Microsoft.AspNetCore.Mvc;
 using DataStorageService.AppSettings;
 using Newtonsoft.Json;
 using System.Net;
+using DataStorageService.Endpoints.DataStorage.AggregateData;
 
 namespace DataStorageService.Endpoints.DataStorage
 {
@@ -16,13 +14,16 @@ namespace DataStorageService.Endpoints.DataStorage
         const int UnprocessableEntityHttpStatusCode = 422;
         private readonly string _sqliteStorageFolder;
         private readonly IApplicationSettings _appSettings;
+        //private readonly IAggregateDataRepository _aggregateData;
         public DataStorageController(IApplicationSettings appSettings)
         {
             _appSettings = appSettings;
+            //_aggregateData = aggregateDataRepository;
             _sqliteStorageFolder = _appSettings.SqliteStorageFolderLocation;
             Directory.CreateDirectory(_sqliteStorageFolder);
 
         }
+
         [HttpGet]
         public object Ping()
         {
@@ -84,10 +85,16 @@ namespace DataStorageService.Endpoints.DataStorage
             return true;
         }
 
-        // PUT api/values/5
-        [HttpPut]
-        public void ImportToDatabase(int id, [FromBody]string value)
+
+        [HttpGet]
+        public void AggregateResults()
         {
+            
+        }
+
+        [HttpGet]
+        public void MockSqliteFile() {
+            
         }
 
     }

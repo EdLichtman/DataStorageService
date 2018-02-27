@@ -2,8 +2,7 @@
 using System.IO;
 using NUnit.Framework;
 using DataStorageService.Helpers;
-using System.Windows.Input;
-using System.Diagnostics;
+using DataStorageServiceTests.TestData;
 using DataStorageService.Endpoints.DataStorage;
 using DataStorageService.AppSettings;
 
@@ -18,7 +17,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
 
         public DataStorageControllerTests()
         {
-            _appSettings = new ApplicationSettings();
+            _appSettings = new TestApplicationSettings();
         }
         [TearDown]
         public void TearDown() {
@@ -34,7 +33,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         [Test]
         public void Can_save_sqlite_file_to_solution() {
             var fileName = GetExpectedFileName();
-            var sqliteFolderLocation = DirectoryHelpers.GetSqliteStorageRoot();
+            var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
             currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
 
             var requestParameters = new StoreFileRequest
@@ -65,7 +64,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         public void Can_save_sqlite_file_without_losing_any_bytes()
         {
             var fileName = GetExpectedFileName();
-            var sqliteFolderLocation = DirectoryHelpers.GetSqliteStorageRoot();
+            var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
             currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
 
             var transferredDbAsBase64string = GetSqliteAsBase64String();

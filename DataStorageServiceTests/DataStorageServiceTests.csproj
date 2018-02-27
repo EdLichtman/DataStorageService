@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Endpoints\" />
-    <Folder Include="Endpoints\DataReader\" />
     <Folder Include="TestData\" />
     <Folder Include="Endpoints\DataStorage\AggregateData\" />
   </ItemGroup>

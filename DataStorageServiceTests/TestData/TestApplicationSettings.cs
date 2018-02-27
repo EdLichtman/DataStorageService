@@ -1,13 +1,16 @@
 ﻿using System;
 using DataStorageService.Helpers;
-namespace DataStorageService.AppSettings
+using DataStorageService.AppSettings;
+
+namespace DataStorageServiceTests.TestData            
 {
-    public class ApplicationSettings: IApplicationSettings
+    public class TestApplicationSettings : IApplicationSettings
     {
+
         private const string sqliteStorageFolderName = "TransmittedFiles";
         public string SqliteStorageFolderName => sqliteStorageFolderName;
 
-        public string SqliteStorageFolderLocation => DirectoryHelpers.GetSqliteStorageRoot();
+        public string SqliteStorageFolderLocation => $"{DirectoryHelpers.GetSolutionRoot()}/DataStorageServiceTests/{sqliteStorageFolderName}";
 
         private const string aggregateSqliteFileName = "AggregateData.db";
         public string AggregateSqliteFileName => aggregateSqliteFileName;

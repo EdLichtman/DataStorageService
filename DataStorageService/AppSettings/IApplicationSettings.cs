@@ -5,5 +5,6 @@ namespace DataStorageService.AppSettings
     {
         string SqliteStorageFolderName { get; }
         string SqliteStorageFolderLocation { get; }
+        string AggregateSqliteFileName { get; }
     }
 }
