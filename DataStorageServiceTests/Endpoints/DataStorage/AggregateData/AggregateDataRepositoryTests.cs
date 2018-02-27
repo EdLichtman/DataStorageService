@@ -3,6 +3,7 @@ using NUnit.Framework;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
 using System.Linq;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 {
@@ -12,7 +13,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         private readonly IAggregateDataRepository _aggregateDataRepository;
         public AggregateDataRepositoryTests()
         {
-            _aggregateDataRepository = new AggregateDataRepository();
+            var inMemoryDbOption = new DbContextOptionsBuilder<AggregateDataContext>()
+                .UseInMemoryDatabase(databaseName: "Add_writes_to_database")
+                .Options;
+            var context = new AggregateDataContext(inMemoryDbOption);
+
+            _aggregateDataRepository = new AggregateDataRepository(context);
         }
         
         [SetUp]
@@ -30,8 +36,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         [Test]
         public void Can_write_to_aggregate_data_repository() {
 
-            var dataPoint = GetTestDataPoints();
-            
+            var dataPoints = GetTestDataPoints();
             var dataPointsWritten = _aggregateDataRepository.AddDataPoints(dataPoints);
 
             var isDatabaseWrittenTo = dataPointsWritten.All(m => m.Id != 0);
@@ -57,7 +62,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 
         [Test]
         public void Can_read_from_aggregate_data_repository() {
-            
+
+            var dataPoints = GetTestDataPoints();
+            var dataPointsWritten = _aggregateDataRepository.AddDataPoints(dataPoints);
+
+            var dataPointsRead = _aggregateDataRepository.GetAllDataPoints();
+            Assert.That(dataPointsRead, Is.Not.Empty);
         }
     }
 }

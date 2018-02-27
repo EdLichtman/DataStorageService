@@ -70,7 +70,7 @@ namespace DataStorageService.Endpoints.DataStorage
             return true;
         }
         private bool WriteMetadataToFile(StoreFileMetadata metadata) {
-            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName}.metadata.json";
+            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName.Replace(".","_")}_metadata.json";
             try
             {
                 var filePath = System.IO.File.Create(fileLocation);

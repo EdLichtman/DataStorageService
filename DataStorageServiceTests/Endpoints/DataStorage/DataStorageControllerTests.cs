@@ -24,7 +24,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         public void TearDown() {
             try {
                 File.Delete(currentTestSqliteFile);
-                File.Delete($"{currentTestSqliteFile}.metadata.json");
+                File.Delete($"{currentTestSqliteFile.Replace(".","_")}_metadata.json");
                 Directory.Delete(_appSettings.SqliteStorageFolderLocation, false);
             } catch {
                 //if it fails it's nbd, each file is based on a time stamp
