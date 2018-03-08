@@ -4,7 +4,7 @@ VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageService", "DataStorageService\DataStorageService.csproj", "{D01A74FA-15DA-4A72-9AE1-36E03DB3BE5F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStorageServiceTests", "DataStorageServiceTests\DataStorageServiceTests.csproj", "{AFA321D2-5B37-47E6-963C-D4CB0240E990}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorageServiceTests", "DataStorageServiceTests\DataStorageServiceTests.csproj", "{AFA321D2-5B37-47E6-963C-D4CB0240E990}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
