@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using DataStorageServiceTests.TestData;
 using DataStorageService.AppSettings;
 using System.Linq;
+using DataStorageService.Helpers;
 
 namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
 {
@@ -83,15 +84,15 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
             return new List<ImportedDataPoint> {
                 new ImportedDataPoint {
                     RawIntensity = 1,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).Ticks)
+                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 },
                 new ImportedDataPoint {
                     RawIntensity = 2,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(5).Ticks)
+                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(5).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 },
                 new ImportedDataPoint {
                     RawIntensity = 3,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(10).Ticks)
+                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(10).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 }
             };
         }
