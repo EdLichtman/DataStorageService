@@ -24,12 +24,17 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 
         public AggregateDataRepositoryTests()
         {
+            _applicationSettings = new TestApplicationSettings();
             var inMemoryDbOption = new DbContextOptionsBuilder<AggregateDataContext>()
                 .UseInMemoryDatabase(databaseName: "Add_writes_to_database")
                 .Options;
-            var context = new AggregateDataContext(inMemoryDbOption);
 
-            _applicationSettings = new TestApplicationSettings();
+            var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
+                .UseSqlite($"{_applicationSettings.SqliteStorageFolderLocation}/{_applicationSettings.AggregateSqliteFileName}")
+                .Options;
+            var context = new AggregateDataContext(sqliteOption);
+
+
             _dataPointRepository = new SqliteImportedDataPointRepository(_applicationSettings);
             _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
@@ -87,7 +92,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         {
             var totalCount = 0;
             var typesOfSavedData = 1;
-            var daysInWeek = 1;
+            var daysInWeek = 7;
             var hoursInDay = 24;
             var minutesInHour = 60;
             var readingsInMinute = 12;
