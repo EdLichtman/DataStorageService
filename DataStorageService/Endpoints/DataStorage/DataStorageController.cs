@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using DataStorageService.AppSettings;
 using Newtonsoft.Json;
 using System.Net;
-using DataStorageService.Endpoints.DataStorage.AggregateData;
+using DataStorageService.Helpers;
 
 namespace DataStorageService.Endpoints.DataStorage
 {
@@ -71,7 +71,7 @@ namespace DataStorageService.Endpoints.DataStorage
             return true;
         }
         private bool WriteMetadataToFile(StoreFileMetadata metadata) {
-            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName.Replace(".","_")}_metadata.json";
+            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName.GetSqliteAssociatedMetadataFileName()}";
             try
             {
                 var filePath = System.IO.File.Create(fileLocation);

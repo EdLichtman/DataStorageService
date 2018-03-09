@@ -22,7 +22,7 @@ namespace DataStorageService.Helpers
             var currentFolder = System.AppDomain.CurrentDomain.BaseDirectory;
             return currentFolder
                 .Remove(currentFolder.LastIndexOf(SolutionName));
-
         } 
+
     }
 }

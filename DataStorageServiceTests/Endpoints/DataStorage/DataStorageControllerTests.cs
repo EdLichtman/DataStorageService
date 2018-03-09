@@ -4,7 +4,10 @@ using NUnit.Framework;
 using DataStorageService.Helpers;
 using DataStorageServiceTests.TestData;
 using DataStorageService.Endpoints.DataStorage;
+using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
 using DataStorageService.AppSettings;
+using System.Collections.Generic;
+using DataStorageService.Endpoints.DataStorage.AggregateData;
 
 
 namespace DataStorageServiceTests.Endpoints.DataStorage
@@ -13,7 +16,9 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
     public class DataStorageControllerTests
     {
         private readonly IApplicationSettings _appSettings;
+
         private string currentTestSqliteFile;
+
 
         public DataStorageControllerTests()
         {
@@ -23,7 +28,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         public void TearDown() {
             try {
                 File.Delete(currentTestSqliteFile);
-                File.Delete($"{currentTestSqliteFile.Replace(".","_")}_metadata.json");
+                File.Delete(currentTestSqliteFile.GetSqliteAssociatedMetadataFileName());
                 Directory.Delete(_appSettings.SqliteStorageFolderLocation, false);
             } catch {
                 //if it fails it's nbd, each file is based on a time stamp
@@ -95,6 +100,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
                         Is.EqualTo(GetFileAsBase64String(currentTestSqliteFile)));
         }
 
+       
         private string GetExpectedFileName() {
             var now = DateTime.UtcNow;
             var year = now.Year.ToString();
