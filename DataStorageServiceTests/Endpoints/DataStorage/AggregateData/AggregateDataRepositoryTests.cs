@@ -11,6 +11,7 @@ using DataStorageService.AppSettings;
 using DataStorageService.Endpoints.DataStorage;
 using DataStorageService.Helpers;
 using Newtonsoft.Json;
+using Microsoft.Data.Sqlite;
 
 namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 {
@@ -22,15 +23,18 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         private readonly IAggregateDataRepository _aggregateDataRepository;
         private readonly IApplicationSettings _applicationSettings;
 
+
         public AggregateDataRepositoryTests()
         {
             _applicationSettings = new TestApplicationSettings();
-            var inMemoryDbOption = new DbContextOptionsBuilder<AggregateDataContext>()
+            var realApplicationSettings = new ApplicationSettings();
+            /*var inMemoryDbOption = new DbContextOptionsBuilder<AggregateDataContext>()
                 .UseInMemoryDatabase(databaseName: "Add_writes_to_database")
-                .Options;
-
+                .Options;*/
+            var fileLocation = $"{realApplicationSettings.SqliteStorageFolderLocation}/{realApplicationSettings.AggregateSqliteFileName}";
+            var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
-                .UseSqlite($"{_applicationSettings.SqliteStorageFolderLocation}/{_applicationSettings.AggregateSqliteFileName}")
+                .UseSqlite($"{sqliteConnectionString}")
                 .Options;
             var context = new AggregateDataContext(sqliteOption);
 
@@ -63,7 +67,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             var dataPoints = TestDataGenerator.GetTestData();
             var dataPointsWritten = _aggregateDataRepository.AddDataPoints(dataPoints);
 
-            var isDatabaseWrittenTo = dataPointsWritten.All(m => m.Id != 0);
+            var isDatabaseWrittenTo = dataPointsWritten.All(m => m.TimeStamp != default(DateTime));
             Assert.That(isDatabaseWrittenTo);
         }
 

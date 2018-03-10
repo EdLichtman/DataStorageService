@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
 using StructureMap;
+using DataStorageService.AppSettings;
+using Microsoft.Data.Sqlite;
 
 namespace DataStorageService
 {
@@ -21,11 +23,23 @@ namespace DataStorageService
         // This method gets called by the runtime. Use this method to add services to the container.
         public IServiceProvider ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<AggregateDataContext>(ops => ops.UseInMemoryDatabase("CollectedData"));
+            ConfigureDatabase(services);
             services.AddMvc().AddControllersAsServices();
             return ConfigureIoC(services);
         }
 
+        private void ConfigureDatabase(IServiceCollection services) {
+            //services.AddDbContext<AggregateDataContext>(ops => ops.UseInMemoryDatabase("CollectedData"));
+            var dependencyContainer = GetIoCContainer(services);
+            var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
+            var databaseFile = $"{applicationSettings.SqliteStorageFolderLocation}/{applicationSettings.AggregateSqliteFileName}";
+            var databaseConnectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = databaseFile
+            };
+
+            services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite($"{databaseConnectionString}"));
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
@@ -38,8 +52,13 @@ namespace DataStorageService
         }
         public IServiceProvider ConfigureIoC(IServiceCollection services)
         {
-            var container = new Container();
+            var container = GetIoCContainer(services);
+            return container.GetInstance<IServiceProvider>();
+        }
 
+        private Container GetIoCContainer(IServiceCollection services) {
+
+            var container = new Container();
             container.Configure(config =>
             {
                 // Register stuff in container, using the StructureMap APIs...
@@ -53,9 +72,7 @@ namespace DataStorageService
 
                 config.Populate(services);
             });
-
-            return container.GetInstance<IServiceProvider>();
-
+            return container;
         }
     }
 }

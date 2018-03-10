@@ -25,7 +25,7 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
                 trackedDataPoints.Add(_database.Add(dataPoint).Entity);
             }
             _database.SaveChanges();
-            return trackedDataPoints.ToList();
+            return trackedDataPoints;
         }
 
         public IList<AggregateDataPoint> GetAllDataPoints() {
@@ -37,12 +37,12 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
             var files = Directory.GetFiles(folderLocation).Select(file => file.Replace(folderLocation + "/", "")).ToList();
             var dbFiles = files.Where(file => file.EndsWith(".db")).ToList();
             foreach(var dbFile in dbFiles) {
-                var metadata = files
-                    .FirstOrDefault(file => file == dbFile.GetSqliteAssociatedMetadataFileName());
-                if (!string.IsNullOrWhiteSpace(metadata)) {
+   
+                try {
                     var importedData = _importedDataPointRepository.ReadFromDatabase(dbFile);
+                    var metadataFileName = dbFile.GetSqliteAssociatedMetadataFileName();
                     StoreFileMetadata associatedMetaData;
-                    using (var fileReader = new StreamReader($"{folderLocation}/{metadata}"))  {
+                    using (var fileReader = new StreamReader($"{folderLocation}/{metadataFileName}"))  {
                         associatedMetaData = JsonConvert.DeserializeObject<StoreFileMetadata>(fileReader.ReadToEnd());
                     }
 
@@ -57,6 +57,8 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
                         ConversionKey = Convert.ToDouble(associatedMetaData.ConversionKey)
                     });
                     AddDataPoints(aggregateDataPoints.ToList());
+                } catch(Exception e) {
+                    
                 }
 
             }
