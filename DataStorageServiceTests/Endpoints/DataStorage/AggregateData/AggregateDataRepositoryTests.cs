@@ -18,7 +18,6 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
     [TestFixture]
     public class AggregateDataRepositoryTests
     {
-        private IList<string> deletableTestSqliteFiles;
         private readonly IImportedDataPointRepository _dataPointRepository;
         private readonly IAggregateDataRepository _aggregateDataRepository;
         private readonly IApplicationSettings _applicationSettings;
@@ -27,16 +26,15 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         public AggregateDataRepositoryTests()
         {
             _applicationSettings = new TestApplicationSettings();
-            var realApplicationSettings = new ApplicationSettings();
-            /*var inMemoryDbOption = new DbContextOptionsBuilder<AggregateDataContext>()
-                .UseInMemoryDatabase(databaseName: "Add_writes_to_database")
-                .Options;*/
-            var fileLocation = $"{realApplicationSettings.SqliteStorageFolderLocation}/{realApplicationSettings.AggregateSqliteFileName}";
+
+            var fileLocation = $"{_applicationSettings.SqliteStorageFolderLocation}/{_applicationSettings.AggregateSqliteFileName}";
             var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
                 .UseSqlite($"{sqliteConnectionString}")
                 .Options;
             var context = new AggregateDataContext(sqliteOption);
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
 
             _dataPointRepository = new SqliteImportedDataPointRepository(_applicationSettings);
@@ -47,17 +45,15 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         [SetUp]
         public void Setup()
         {
-            deletableTestSqliteFiles = new List<string>();   
+            TearDown();
         }
 
         [TearDown]
         public void TearDown()
         {
             var folderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            foreach (var deletableTestSqliteFile in deletableTestSqliteFiles)
-            {
-                File.Delete($"{folderLocation}/{deletableTestSqliteFile}");
-                File.Delete($"{folderLocation}/{deletableTestSqliteFile.GetSqliteAssociatedMetadataFileName()}");
+            foreach(var file in Directory.GetFiles(folderLocation)) {
+                File.Delete(file);
             }
         }
 
@@ -135,7 +131,6 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
                     };
                     var json = JsonConvert.SerializeObject(metadata);
                     _dataPointRepository.WriteRangeToDatabase(databaseName, fileTypeData);
-                    deletableTestSqliteFiles.Add(databaseName);
                     File.WriteAllText($"{sqliteFolderLocation}/{databaseName.GetSqliteAssociatedMetadataFileName()}", json);
 
                 }
