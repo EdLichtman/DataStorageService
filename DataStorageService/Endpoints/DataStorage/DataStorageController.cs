@@ -57,7 +57,7 @@ namespace DataStorageService.Endpoints.DataStorage
 
         private bool WriteDataToFile(StoreFileRequest requestParameters) {
 
-            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{requestParameters.Metadata.FileName}";
+            var fileLocation = Path.Combine(_appSettings.SqliteStorageFolderLocation,requestParameters.Metadata.FileName);
             try {
                 var filePath = System.IO.File.Create(fileLocation);
                 var fileWriter = new BinaryWriter(filePath);
@@ -71,7 +71,7 @@ namespace DataStorageService.Endpoints.DataStorage
             return true;
         }
         private bool WriteMetadataToFile(StoreFileMetadata metadata) {
-            var fileLocation = $"{_appSettings.SqliteStorageFolderLocation}/{metadata.FileName.GetSqliteAssociatedMetadataFileName()}";
+            var fileLocation = Path.Combine(_appSettings.SqliteStorageFolderLocation,metadata.FileName.GetSqliteAssociatedMetadataFileName());
             try
             {
                 var filePath = System.IO.File.Create(fileLocation);

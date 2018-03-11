@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using DataStorageService.Helpers;
 namespace DataStorageService.AppSettings
 {
@@ -7,14 +7,17 @@ namespace DataStorageService.AppSettings
         private const string sqliteStorageFolderName = "TransmittedFiles";
         public string SqliteStorageFolderName => sqliteStorageFolderName;
 
-        public string SqliteStorageFolderLocation => DirectoryHelpers.GetSqliteStorageRoot();
+        public string SqliteStorageFolderLocation => 
+            DirectoryHelpers.GetSqliteStorageRoot();
 
         private const string aggregateSqliteFileName = "AggregateData.db";
         public string AggregateSqliteFileName => aggregateSqliteFileName;
 
         private const string completedImportSqliteStorageFolderLocation = "TransmittedFilesAlreadyImported";
         public string CompletedImportSqliteStorageFolderLocation => 
-            $"{DirectoryHelpers.GetDataStorageServiceProjectRoot()}/" +
-            $"{completedImportSqliteStorageFolderLocation}";
+            Path.Combine(
+                DirectoryHelpers.GetDataStorageServiceProjectRoot(),
+                completedImportSqliteStorageFolderLocation);
+
     }
 }

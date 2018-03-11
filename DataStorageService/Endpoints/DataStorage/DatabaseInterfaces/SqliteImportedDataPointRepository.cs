@@ -22,7 +22,7 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
 
         public IList<ImportedDataPoint> ReadFromDatabase(string fileName)
         {
-            var fileLocation = $"{_applicationSettings.SqliteStorageFolderLocation}/{fileName}";
+            var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,fileName);
             var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
 
             var importedData = new List<ImportedDataPoint>();
@@ -57,7 +57,7 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
 
         public bool WriteRangeToDatabase(string fileName, IList<ImportedDataPoint> dataPoints)
         {
-            var fileLocation = $"{_applicationSettings.SqliteStorageFolderLocation}/{fileName}";
+            var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,fileName);
             var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
 
             Directory.CreateDirectory(_applicationSettings.SqliteStorageFolderLocation);

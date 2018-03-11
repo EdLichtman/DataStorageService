@@ -34,8 +34,9 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
         }
 
         public IList<AggregateDataPoint> ImportFolder(string folderLocation, string alreadyImportedFolderLocation) {
+            var systemSlash = OperatingSystemHelpers.SystemSlash;
             Directory.CreateDirectory(alreadyImportedFolderLocation);
-            var files = Directory.GetFiles(folderLocation).Select(file => file.Replace(folderLocation + "/", "")).ToList();
+            var files = Directory.GetFiles(folderLocation).Select(file => file.Replace(folderLocation + systemSlash, "")).ToList();
             var dbFiles = files.Where(file => file.EndsWith(".db")).ToList();
             foreach(var dbFile in dbFiles) {
    
@@ -43,7 +44,9 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
                     var importedData = _importedDataPointRepository.ReadFromDatabase(dbFile);
                     var metadataFileName = dbFile.GetSqliteAssociatedMetadataFileName();
                     StoreFileMetadata associatedMetaData;
-                    using (var fileReader = new StreamReader($"{folderLocation}/{metadataFileName}"))  {
+                    var importedDataFileLocation = Path.Combine(folderLocation, dbFile);
+                    var metaDataFileLocation = Path.Combine(folderLocation, metadataFileName);
+                    using (var fileReader = new StreamReader(metaDataFileLocation))  {
                         associatedMetaData = JsonConvert.DeserializeObject<StoreFileMetadata>(fileReader.ReadToEnd());
                     }
 
@@ -58,8 +61,8 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
                         ConversionKey = Convert.ToDouble(associatedMetaData.ConversionKey)
                     });
                     AddDataPoints(aggregateDataPoints.ToList());
-                    File.Move($"{folderLocation}/{dbFile}", $"{alreadyImportedFolderLocation}/{dbFile}");
-                    File.Move($"{folderLocation}/{metadataFileName}", $"{alreadyImportedFolderLocation}/{metadataFileName}");
+                    File.Move(importedDataFileLocation, Path.Combine(alreadyImportedFolderLocation,dbFile));
+                    File.Move(metaDataFileLocation, Path.Combine(alreadyImportedFolderLocation,metadataFileName));
                 } catch(Exception e) {
                     throw e;
                 }

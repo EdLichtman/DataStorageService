@@ -25,10 +25,9 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 
         public AggregateDataRepositoryTests()
         {
-            
             _applicationSettings = new TestApplicationSettings();
             TearDown();
-            var fileLocation = $"{_applicationSettings.SqliteStorageFolderLocation}/{_applicationSettings.AggregateSqliteFileName}";
+            var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,_applicationSettings.AggregateSqliteFileName);
             File.Create(fileLocation);
             var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
@@ -36,7 +35,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
                 .Options;
             var context = new AggregateDataContext(sqliteOption);
             context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
+            try { 
+                context.Database.EnsureCreated();
+            } catch(Exception e)
+            {
+
+            }
             context.Database.Migrate();
 
 
@@ -44,18 +48,13 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
         }
-        
-        [SetUp]
-        public void Setup()
-        {
-            
-        }
 
         [TearDown]
         public void TearDown()
         {
             var folderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            foreach(var file in Directory.GetFiles(folderLocation)) {
+            foreach (var file in Directory.GetFiles(folderLocation))
+            {
                 File.Delete(file);
             }
             var alreadyImportedFolderLocation = _applicationSettings.CompletedImportSqliteStorageFolderLocation;
@@ -64,6 +63,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
                 File.Delete(file);
             }
         }
+
 
         [Test]
         public void Can_write_to_aggregate_data_repository() {
@@ -139,7 +139,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
                     };
                     var json = JsonConvert.SerializeObject(metadata);
                     _dataPointRepository.WriteRangeToDatabase(databaseName, fileTypeData);
-                    File.WriteAllText($"{sqliteFolderLocation}/{databaseName.GetSqliteAssociatedMetadataFileName()}", json);
+                    File.WriteAllText(Path.Combine(sqliteFolderLocation,databaseName.GetSqliteAssociatedMetadataFileName()), json);
 
                 }
             }

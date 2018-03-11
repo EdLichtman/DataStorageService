@@ -21,8 +21,10 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
 
         [SetUp]
         public void Setup() {
+            
             _applicationSettings = new TestApplicationSettings();
             _importedDataPointStorage = new SqliteImportedDataPointRepository(_applicationSettings);
+
         }
         [TearDown]
         public void TearDown() {
@@ -34,7 +36,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
         public void Can_create_Sqlite_database(){
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
             TearDown();
             var rawDataSet = GetTestData();
 
@@ -46,7 +48,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
         public void Can_write_to_Sqlite_database(){
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
             TearDown();
             var rawDataSet = GetTestData();
 
@@ -58,7 +60,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
         public void Can_read_total_rows_from_Sqlite_database() {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
             TearDown();
             var rawDataSet = GetTestData();
 
@@ -70,7 +72,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
         public void Can_get_data_from_Sqlite_database() {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _applicationSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
             TearDown();
             var rawDataSet = GetTestData();
 

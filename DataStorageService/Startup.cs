@@ -8,6 +8,7 @@ using DataStorageService.Endpoints.DataStorage.AggregateData;
 using StructureMap;
 using DataStorageService.AppSettings;
 using Microsoft.Data.Sqlite;
+using System.IO;
 
 namespace DataStorageService
 {
@@ -29,10 +30,9 @@ namespace DataStorageService
         }
 
         private void ConfigureDatabase(IServiceCollection services) {
-            //services.AddDbContext<AggregateDataContext>(ops => ops.UseInMemoryDatabase("CollectedData"));
             var dependencyContainer = GetIoCContainer(services);
             var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
-            var databaseFile = $"{applicationSettings.SqliteStorageFolderLocation}/{applicationSettings.AggregateSqliteFileName}";
+            var databaseFile = Path.Combine(applicationSettings.SqliteStorageFolderLocation,applicationSettings.AggregateSqliteFileName);
             var databaseConnectionString = new SqliteConnectionStringBuilder
             {
                 DataSource = databaseFile

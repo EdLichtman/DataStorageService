@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using DataStorageService.Helpers;
 using DataStorageService.AppSettings;
 
@@ -10,12 +10,12 @@ namespace DataStorageServiceTests.TestData
         private const string sqliteStorageFolderName = "TransmittedFiles";
         public string SqliteStorageFolderName => sqliteStorageFolderName;
 
-        public string SqliteStorageFolderLocation => $"{DirectoryHelpers.GetSolutionRoot()}/DataStorageServiceTests/{sqliteStorageFolderName}";
+        public string SqliteStorageFolderLocation => Path.Combine(DirectoryHelpers.GetSolutionRoot(),"DataStorageServiceTests",sqliteStorageFolderName);
 
         private const string aggregateSqliteFileName = "AggregateData.db";
         public string AggregateSqliteFileName => aggregateSqliteFileName;
 
         private const string completedImportSqliteStorageFolderLocation = "TransmittedFilesAlreadyImported";
-        public string CompletedImportSqliteStorageFolderLocation => $"{DirectoryHelpers.GetSolutionRoot()}/DataStorageServiceTests/{completedImportSqliteStorageFolderLocation}";
+        public string CompletedImportSqliteStorageFolderLocation => Path.Combine(DirectoryHelpers.GetSolutionRoot(),"DataStorageServiceTests",completedImportSqliteStorageFolderLocation);
     }
 }

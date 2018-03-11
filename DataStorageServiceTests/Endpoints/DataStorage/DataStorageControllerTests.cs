@@ -39,7 +39,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         public void Can_save_sqlite_file_to_solution() {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
 
             var requestParameters = new StoreFileRequest
             {
@@ -70,7 +70,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = $"{sqliteFolderLocation}/{fileName}";
+            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
 
             var transferredDbAsBase64string = GetSqliteAsBase64String();
             var requestParameters = new StoreFileRequest
@@ -114,7 +114,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
 
         private string GetSqliteAsBase64String() {
             var solutionRoot = DirectoryHelpers.GetSolutionRoot();
-            return GetFileAsBase64String($"{solutionRoot}/DataStorageServiceTests/TestData/Chinook.db");
+            return GetFileAsBase64String(Path.Combine(solutionRoot,"DataStorageServiceTests","TestData","Chinook.db"));
         }
 
         private string GetFileAsBase64String(string filePath) {
