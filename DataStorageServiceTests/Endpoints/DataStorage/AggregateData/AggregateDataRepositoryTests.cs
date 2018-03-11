@@ -25,9 +25,11 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 
         public AggregateDataRepositoryTests()
         {
+            
             _applicationSettings = new TestApplicationSettings();
-
+            TearDown();
             var fileLocation = $"{_applicationSettings.SqliteStorageFolderLocation}/{_applicationSettings.AggregateSqliteFileName}";
+            File.Create(fileLocation);
             var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
                 .UseSqlite($"{sqliteConnectionString}")
@@ -35,6 +37,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             var context = new AggregateDataContext(sqliteOption);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+            context.Database.Migrate();
 
 
             _dataPointRepository = new SqliteImportedDataPointRepository(_applicationSettings);
@@ -45,7 +48,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         [SetUp]
         public void Setup()
         {
-            TearDown();
+            
         }
 
         [TearDown]
@@ -53,6 +56,11 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         {
             var folderLocation = _applicationSettings.SqliteStorageFolderLocation;
             foreach(var file in Directory.GetFiles(folderLocation)) {
+                File.Delete(file);
+            }
+            var alreadyImportedFolderLocation = _applicationSettings.CompletedImportSqliteStorageFolderLocation;
+            foreach (var file in Directory.GetFiles(alreadyImportedFolderLocation))
+            {
                 File.Delete(file);
             }
         }
@@ -82,7 +90,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         {
             var weeksWorthOfDataCount = WriteWeeksWorthOfData();
 
-            _aggregateDataRepository.ImportFolder(_applicationSettings.SqliteStorageFolderLocation);
+            _aggregateDataRepository.ImportFolder(_applicationSettings.SqliteStorageFolderLocation, _applicationSettings.CompletedImportSqliteStorageFolderLocation);
 
             var totalRecordCount = _aggregateDataRepository.GetAllDataPoints().Count();
             Assert.That(totalRecordCount, Is.EqualTo(weeksWorthOfDataCount));
@@ -92,8 +100,8 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         {
             var totalCount = 0;
             var typesOfSavedData = 1;
-            var daysInWeek = 7;
-            var hoursInDay = 24;
+            var daysInWeek = 1;
+            var hoursInDay = 1;
             var minutesInHour = 60;
             var readingsInMinute = 12;
             var oneWeekOfData = daysInWeek * hoursInDay;

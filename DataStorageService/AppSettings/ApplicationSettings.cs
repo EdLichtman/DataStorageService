@@ -11,5 +11,10 @@ namespace DataStorageService.AppSettings
 
         private const string aggregateSqliteFileName = "AggregateData.db";
         public string AggregateSqliteFileName => aggregateSqliteFileName;
+
+        private const string completedImportSqliteStorageFolderLocation = "TransmittedFilesAlreadyImported";
+        public string CompletedImportSqliteStorageFolderLocation => 
+            $"{DirectoryHelpers.GetDataStorageServiceProjectRoot()}/" +
+            $"{completedImportSqliteStorageFolderLocation}";
     }
 }

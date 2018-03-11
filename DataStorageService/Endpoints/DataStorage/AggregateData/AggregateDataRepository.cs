@@ -33,7 +33,8 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
             return _database.AggregateDataPoints.ToList();
         }
 
-        public IList<AggregateDataPoint> ImportFolder(string folderLocation) {
+        public IList<AggregateDataPoint> ImportFolder(string folderLocation, string alreadyImportedFolderLocation) {
+            Directory.CreateDirectory(alreadyImportedFolderLocation);
             var files = Directory.GetFiles(folderLocation).Select(file => file.Replace(folderLocation + "/", "")).ToList();
             var dbFiles = files.Where(file => file.EndsWith(".db")).ToList();
             foreach(var dbFile in dbFiles) {
@@ -57,8 +58,10 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
                         ConversionKey = Convert.ToDouble(associatedMetaData.ConversionKey)
                     });
                     AddDataPoints(aggregateDataPoints.ToList());
+                    File.Move($"{folderLocation}/{dbFile}", $"{alreadyImportedFolderLocation}/{dbFile}");
+                    File.Move($"{folderLocation}/{metadataFileName}", $"{alreadyImportedFolderLocation}/{metadataFileName}");
                 } catch(Exception e) {
-                    
+                    throw e;
                 }
 
             }
