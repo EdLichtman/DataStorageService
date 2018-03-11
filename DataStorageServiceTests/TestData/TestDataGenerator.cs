@@ -61,8 +61,8 @@ namespace DataStorageServiceTests.TestData
         {
             var totalCount = 0;
             var typesOfSavedData = 1;
-            var daysInWeek = 1;
-            var hoursInDay = 1;
+            var daysInWeek = 7;
+            var hoursInDay = 24;
             var minutesInHour = 60;
             var readingsInMinute = 12;
             var oneWeekOfData = daysInWeek * hoursInDay;

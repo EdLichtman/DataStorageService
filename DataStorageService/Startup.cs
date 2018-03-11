@@ -31,10 +31,11 @@ namespace DataStorageService
 
         private void ConfigureDatabase(IServiceCollection services) {
             var dependencyContainer = GetIoCContainer(services);
-            var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
-            var databaseFile = Path.Combine(applicationSettings.SqliteStorageFolderLocation,applicationSettings.AggregateSqliteFileName);
 
-            services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite(AggregateDataContext.GetSqliteString(databaseFile)));
+            var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
+            var aggregateDataFileLocation = Path.Combine(applicationSettings.SqliteStorageFolderLocation, applicationSettings.AggregateSqliteFileName);
+            File.Create(aggregateDataFileLocation);
+            services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation)));
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
@@ -46,11 +47,6 @@ namespace DataStorageService
 
             app.UseMvc();
 
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope()) {
-                var context = serviceScope.ServiceProvider.GetRequiredService<AggregateDataContext>();
-                context.Database.EnsureDeleted();
-                context.Database.EnsureCreated();
-            }
         }
         public IServiceProvider ConfigureIoC(IServiceCollection services)
         {
