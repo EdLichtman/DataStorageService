@@ -49,6 +49,12 @@ namespace DataStorageService
             }
 
             app.UseMvc();
+
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope()) {
+                var context = serviceScope.ServiceProvider.GetRequiredService<AggregateDataContext>();
+                context.Database.EnsureDeleted();
+                context.Database.EnsureCreated();
+            }
         }
         public IServiceProvider ConfigureIoC(IServiceCollection services)
         {

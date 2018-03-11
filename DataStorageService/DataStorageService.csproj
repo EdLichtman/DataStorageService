@@ -25,4 +25,7 @@
   </ItemGroup>
     
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20180310030132_InitialCreate.cs" />
+  </ItemGroup>
 </Project>
