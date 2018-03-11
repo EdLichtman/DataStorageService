@@ -3,15 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
   </PropertyGroup>
-<!-- 
-  <ItemGroup>
-    <Folder Include="wwwroot\" />
-    <Folder Include="Endpoints\" />
-    <Folder Include="Helpers\" />
-    <Folder Include="Endpoints\DataStorage\" />
-    <Folder Include="AppSettings\" />
-    <Folder Include="Endpoints\DataStorage\AggregateData\" />
-  </ItemGroup> -->
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
@@ -21,11 +12,6 @@
 
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.2" />
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.0" />
   </ItemGroup>
     
-
-  <ItemGroup>
-    <Compile Remove="Migrations\20180310030132_InitialCreate.cs" />
-  </ItemGroup>
 </Project>
