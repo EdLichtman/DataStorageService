@@ -33,12 +33,8 @@ namespace DataStorageService
             var dependencyContainer = GetIoCContainer(services);
             var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
             var databaseFile = Path.Combine(applicationSettings.SqliteStorageFolderLocation,applicationSettings.AggregateSqliteFileName);
-            var databaseConnectionString = new SqliteConnectionStringBuilder
-            {
-                DataSource = databaseFile
-            };
 
-            services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite($"{databaseConnectionString}"));
+            services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite(AggregateDataContext.GetSqliteString(databaseFile)));
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

@@ -11,7 +11,7 @@ using DataStorageService.AppSettings;
 using DataStorageService.Endpoints.DataStorage;
 using DataStorageService.Helpers;
 using Newtonsoft.Json;
-using Microsoft.Data.Sqlite;
+
 
 namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
 {
@@ -29,18 +29,14 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             TearDown();
             var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,_applicationSettings.AggregateSqliteFileName);
             File.Create(fileLocation);
-            var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
+
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
-                .UseSqlite($"{sqliteConnectionString}")
+                .UseSqlite(AggregateDataContext.GetSqliteString(fileLocation))
                 .Options;
+
             var context = new AggregateDataContext(sqliteOption);
             context.Database.EnsureDeleted();
-            try { 
-                context.Database.EnsureCreated();
-            } catch(Exception e)
-            {
-
-            }
+            context.Database.EnsureCreated();
             context.Database.Migrate();
 
 

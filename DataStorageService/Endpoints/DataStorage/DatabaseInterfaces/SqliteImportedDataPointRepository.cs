@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using DataStorageService.AppSettings;
 using Microsoft.Data.Sqlite;
+using DataStorageService.Endpoints.DataStorage.AggregateData;
 
 
 namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
@@ -23,7 +24,11 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
         public IList<ImportedDataPoint> ReadFromDatabase(string fileName)
         {
             var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,fileName);
-            var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
+            var sqliteConnectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = fileLocation
+            }.ToString();
+            
 
             var importedData = new List<ImportedDataPoint>();
             using (var connection = new SqliteConnection($"{sqliteConnectionString}"))
@@ -58,7 +63,10 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
         public bool WriteRangeToDatabase(string fileName, IList<ImportedDataPoint> dataPoints)
         {
             var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,fileName);
-            var sqliteConnectionString = new SqliteConnectionStringBuilder { DataSource = fileLocation };
+            var sqliteConnectionString = new SqliteConnectionStringBuilder
+            {
+                DataSource = fileLocation
+            }.ToString();
 
             Directory.CreateDirectory(_applicationSettings.SqliteStorageFolderLocation);
             CreateDatabase(sqliteConnectionString);
@@ -83,8 +91,8 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
             return true;
         }
 
-        private void CreateDatabase(SqliteConnectionStringBuilder sqliteConnectionString) {
-            using (var connection = new SqliteConnection($"{sqliteConnectionString}")) {
+        private void CreateDatabase(string sqliteConnectionString) {
+            using (var connection = new SqliteConnection(sqliteConnectionString)) {
                 connection.Open();
                 using (var transaction = connection.BeginTransaction()) {
                     var createCommand = connection.CreateCommand();
