@@ -39,30 +39,31 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
             var files = Directory.GetFiles(folderLocation).Select(file => file.Replace(folderLocation + systemSlash, "")).ToList();
             var dbFiles = files.Where(file => file.EndsWith(".db")).ToList();
             foreach(var dbFile in dbFiles) {
-   
                 try {
-                    var importedData = _importedDataPointRepository.ReadFromDatabase(dbFile);
                     var metadataFileName = dbFile.GetSqliteAssociatedMetadataFileName();
-                    StoreFileMetadata associatedMetaData;
-                    var importedDataFileLocation = Path.Combine(folderLocation, dbFile);
-                    var metaDataFileLocation = Path.Combine(folderLocation, metadataFileName);
-                    using (var fileReader = new StreamReader(metaDataFileLocation))  {
-                        associatedMetaData = JsonConvert.DeserializeObject<StoreFileMetadata>(fileReader.ReadToEnd());
-                    }
+                    if (files.Contains(metadataFileName)){
+                        var importedData = _importedDataPointRepository.ReadFromDatabase(dbFile);
+                        StoreFileMetadata associatedMetaData;
+                        var importedDataFileLocation = Path.Combine(folderLocation, dbFile);
+                        var metaDataFileLocation = Path.Combine(folderLocation, metadataFileName);
+                        using (var fileReader = new StreamReader(metaDataFileLocation))  {
+                            associatedMetaData = JsonConvert.DeserializeObject<StoreFileMetadata>(fileReader.ReadToEnd());
+                        }
 
-                    var aggregateDataPoints = importedData.Select(data => new AggregateDataPoint
-                    {
-                        TimeStamp = data.TimeStamp,
-                        RawIntensity = data.RawIntensity,
-                        RoomNumber = associatedMetaData.RoomNumber,
-                        RackIdentifier = associatedMetaData.RackIdentifier,
-                        RackCoordinateX = associatedMetaData.RackCoordinates.X,
-                        RackCoordinateY = associatedMetaData.RackCoordinates.Y,
-                        ConversionKey = Convert.ToDouble(associatedMetaData.ConversionKey)
-                    });
-                    AddDataPoints(aggregateDataPoints.ToList());
-                    File.Move(importedDataFileLocation, Path.Combine(alreadyImportedFolderLocation,dbFile));
-                    File.Move(metaDataFileLocation, Path.Combine(alreadyImportedFolderLocation,metadataFileName));
+                        var aggregateDataPoints = importedData.Select(data => new AggregateDataPoint
+                        {
+                            TimeStamp = data.TimeStamp,
+                            RawIntensity = data.RawIntensity,
+                            RoomNumber = associatedMetaData.RoomNumber,
+                            RackIdentifier = associatedMetaData.RackIdentifier,
+                            RackCoordinateX = associatedMetaData.RackCoordinates.X,
+                            RackCoordinateY = associatedMetaData.RackCoordinates.Y,
+                            ConversionKey = Convert.ToDouble(associatedMetaData.ConversionKey)
+                        });
+                        AddDataPoints(aggregateDataPoints.ToList());
+                        File.Move(importedDataFileLocation, Path.Combine(alreadyImportedFolderLocation,dbFile));
+                        File.Move(metaDataFileLocation, Path.Combine(alreadyImportedFolderLocation,metadataFileName));
+                    }
                 } catch(Exception e) {
                     throw e;
                 }
