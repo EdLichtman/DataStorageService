@@ -21,8 +21,10 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
 
             return $"{databaseConnectionString}";
         }
-        public AggregateDataContext(DbContextOptions options) : base(options) { 
-            
+        public AggregateDataContext(DbContextOptions options) : base(options) {
+            Database.EnsureDeleted();
+            Database.EnsureCreated();
+            Database.Migrate();
         }
 
         public DbSet<AggregateDataPoint> AggregateDataPoints { get; set; }

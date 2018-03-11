@@ -5,12 +5,8 @@ using DataStorageService.Endpoints.DataStorage.AggregateData;
 using System.Linq;
 using DataStorageServiceTests.TestData;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
 using DataStorageService.AppSettings;
-using DataStorageService.Endpoints.DataStorage;
-using DataStorageService.Helpers;
-using Newtonsoft.Json;
 
 
 namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
@@ -27,21 +23,17 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         {
             _applicationSettings = new TestApplicationSettings();
             TearDown();
-            var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,_applicationSettings.AggregateSqliteFileName);
-            File.Create(fileLocation);
+            var aggregateDataFileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,_applicationSettings.AggregateSqliteFileName);
+            File.Create(aggregateDataFileLocation);
 
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
-                .UseSqlite(AggregateDataContext.GetSqliteString(fileLocation))
+                .UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation))
                 .Options;
-
             var context = new AggregateDataContext(sqliteOption);
-            context.Database.EnsureDeleted();
-            context.Database.EnsureCreated();
-            context.Database.Migrate();
-
+            _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
             _dataPointRepository = new SqliteImportedDataPointRepository(_applicationSettings);
-            _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
+
 
         }
 
@@ -84,62 +76,14 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         [Test]
         public void Can_import_data()
         {
-            var weeksWorthOfDataCount = WriteWeeksWorthOfData();
+            var weeksWorthOfDataCount = _dataPointRepository.GenerateWeeksWorthOfData(_applicationSettings);
 
-            _aggregateDataRepository.ImportFolder(_applicationSettings.SqliteStorageFolderLocation, _applicationSettings.CompletedImportSqliteStorageFolderLocation);
+            _aggregateDataRepository.ImportFolder(_applicationSettings.SqliteStorageFolderLocation);
 
             var totalRecordCount = _aggregateDataRepository.GetAllDataPoints().Count();
             Assert.That(totalRecordCount, Is.EqualTo(weeksWorthOfDataCount));
         }
 
-        private int WriteWeeksWorthOfData()
-        {
-            var totalCount = 0;
-            var typesOfSavedData = 1;
-            var daysInWeek = 1;
-            var hoursInDay = 1;
-            var minutesInHour = 60;
-            var readingsInMinute = 12;
-            var oneWeekOfData = daysInWeek * hoursInDay;
-            var readingsPerHour = minutesInHour * readingsInMinute;
 
-            var sqliteFolderLocation = _applicationSettings.SqliteStorageFolderLocation;
-
-            for (var fileTypeIndex = 0; fileTypeIndex < typesOfSavedData; fileTypeIndex++)
-            {
-                for (var fileIndex = 0; fileIndex < oneWeekOfData; fileIndex++)
-                {
-                    var databaseName = $"VibrationType{fileTypeIndex}{fileIndex}.db";
-                    var fileTypeData = new List<ImportedDataPoint>();
-                    for (var dataPointIndex = 0; dataPointIndex < readingsPerHour; dataPointIndex++)
-                    {
-                        fileTypeData.Add(new ImportedDataPoint
-                        {
-                            TimeStamp = DateTime.Now.AddDays(-7).AddMinutes(5 * dataPointIndex),
-                            RawIntensity = dataPointIndex
-                        });
-                        totalCount++;
-                    }
-
-                    var metadata = new StoreFileMetadata
-                    {
-                        FileName = databaseName,
-                        RoomNumber = fileIndex.ToString(),
-                        RackIdentifier = fileIndex,
-                        RackCoordinates = new RackCoordinate
-                        {
-                            X = fileIndex,
-                            Y = fileIndex
-                        },
-                        ConversionKey = fileIndex.ToString()
-                    };
-                    var json = JsonConvert.SerializeObject(metadata);
-                    _dataPointRepository.WriteRangeToDatabase(databaseName, fileTypeData);
-                    File.WriteAllText(Path.Combine(sqliteFolderLocation,databaseName.GetSqliteAssociatedMetadataFileName()), json);
-
-                }
-            }
-            return totalCount;
-        }
     }
 }

@@ -9,6 +9,6 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
 
         IList<AggregateDataPoint> GetAllDataPoints();
 
-        IList<AggregateDataPoint> ImportFolder(string folderLocation, string alreadyImportedFolderLocation);
+        IList<AggregateDataPoint> ImportFolder(string folderLocation);
     }
 }

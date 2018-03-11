@@ -5,6 +5,7 @@ using DataStorageService.AppSettings;
 using Newtonsoft.Json;
 using System.Net;
 using DataStorageService.Helpers;
+using DataStorageService.Endpoints.DataStorage.AggregateData;
 
 namespace DataStorageService.Endpoints.DataStorage
 {
@@ -14,11 +15,12 @@ namespace DataStorageService.Endpoints.DataStorage
         const int UnprocessableEntityHttpStatusCode = 422;
         private readonly string _sqliteStorageFolder;
         private readonly IApplicationSettings _appSettings;
-        //private readonly IAggregateDataRepository _aggregateData;
-        public DataStorageController(IApplicationSettings appSettings)
+        private readonly IAggregateDataRepository _aggregateDataRepository;
+
+        public DataStorageController(IApplicationSettings appSettings, IAggregateDataRepository aggregateDataRepository)
         {
             _appSettings = appSettings;
-            //_aggregateData = aggregateDataRepository;
+            _aggregateDataRepository = aggregateDataRepository;
             _sqliteStorageFolder = _appSettings.SqliteStorageFolderLocation;
             Directory.CreateDirectory(_sqliteStorageFolder);
 
@@ -87,9 +89,10 @@ namespace DataStorageService.Endpoints.DataStorage
 
 
         [HttpGet]
-        public void AggregateResults()
+        public int AggregateResults()
         {
-            
+            var results = _aggregateDataRepository.ImportFolder(_appSettings.SqliteStorageFolderLocation);
+            return results.Count;
         }
 
         [HttpGet]

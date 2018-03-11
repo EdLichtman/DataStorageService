@@ -6,7 +6,7 @@ using DataStorageServiceTests.TestData;
 using DataStorageService.Endpoints.DataStorage;
 using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
 using DataStorageService.AppSettings;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
 
 
@@ -16,20 +16,38 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
     public class DataStorageControllerTests
     {
         private readonly IApplicationSettings _appSettings;
-
-        private string currentTestSqliteFile;
-
+        private readonly IImportedDataPointRepository _dataPointRepository;
+        private readonly DataStorageController _dataStorageController;
 
         public DataStorageControllerTests()
         {
             _appSettings = new TestApplicationSettings();
+            _dataPointRepository = new SqliteImportedDataPointRepository(_appSettings);
+
+            var aggregateDataFileLocation = Path.Combine(_appSettings.SqliteStorageFolderLocation, _appSettings.AggregateSqliteFileName);
+            File.Create(aggregateDataFileLocation);
+
+            var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
+                .UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation))
+                .Options;
+            var context = new AggregateDataContext(sqliteOption);
+            var aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
+
+            _dataStorageController = new DataStorageController(_appSettings, aggregateDataRepository);
         }
         [TearDown]
         public void TearDown() {
             try {
-                File.Delete(currentTestSqliteFile);
-                File.Delete(currentTestSqliteFile.GetSqliteAssociatedMetadataFileName());
-                Directory.Delete(_appSettings.SqliteStorageFolderLocation, false);
+                var folderLocation = _appSettings.SqliteStorageFolderLocation;
+                foreach (var file in Directory.GetFiles(folderLocation))
+                {
+                    File.Delete(file);
+                }
+                var alreadyImportedFolderLocation = _appSettings.CompletedImportSqliteStorageFolderLocation;
+                foreach (var file in Directory.GetFiles(alreadyImportedFolderLocation))
+                {
+                    File.Delete(file);
+                }
             } catch {
                 //if it fails it's nbd, each file is based on a time stamp
             }
@@ -39,7 +57,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         public void Can_save_sqlite_file_to_solution() {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
+            var currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
 
             var requestParameters = new StoreFileRequest
             {
@@ -58,9 +76,8 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
 
                 SqliteDataAsBase64 = GetSqliteAsBase64String()
             };
-            var controller = new DataStorageController(_appSettings);
 
-            controller.StoreFile(requestParameters);
+            _dataStorageController.StoreFile(requestParameters);
 
             Assert.That(currentTestSqliteFile, Does.Exist);
         }
@@ -70,7 +87,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
         {
             var fileName = GetExpectedFileName();
             var sqliteFolderLocation = _appSettings.SqliteStorageFolderLocation;
-            currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
+            var currentTestSqliteFile = Path.Combine(sqliteFolderLocation,fileName);
 
             var transferredDbAsBase64string = GetSqliteAsBase64String();
             var requestParameters = new StoreFileRequest
@@ -90,16 +107,20 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
 
                 SqliteDataAsBase64 = transferredDbAsBase64string
             };
-            var controller = new DataStorageController(_appSettings);
 
-            controller.StoreFile(requestParameters);
-
-
+            _dataStorageController.StoreFile(requestParameters);
 
             Assert.That(transferredDbAsBase64string, 
                         Is.EqualTo(GetFileAsBase64String(currentTestSqliteFile)));
         }
 
+        [Test]
+        public void Can_import_data() {
+            var expectedGeneratedRows = _dataPointRepository.GenerateWeeksWorthOfData(_appSettings);
+
+            var totalGeneratedRows = _dataStorageController.AggregateResults();
+            Assert.That(totalGeneratedRows, Is.EqualTo(expectedGeneratedRows));
+        }
        
         private string GetExpectedFileName() {
             var now = DateTime.UtcNow;
