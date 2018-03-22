@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace DataStorageService.Endpoints.DataStorage
+namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
 {
     public class ImportedDataPoint
     {
