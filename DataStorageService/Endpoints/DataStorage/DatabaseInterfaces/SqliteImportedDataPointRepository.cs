@@ -11,9 +11,9 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
     public class SqliteImportedDataPointRepository : IImportedDataPointRepository
     {
         private readonly IApplicationSettings _applicationSettings;
-        private const string table = "datapoints";
-        private const string column1 = "timestamp";
-        private const string column2 = "raw_intensity";
+        private const string table = "vibrations";
+        private const string column1 = "timestamp_in_utc";
+        private const string column2 = "bits";
 
         public SqliteImportedDataPointRepository(IApplicationSettings applicationSettings)
         {
@@ -21,9 +21,9 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
 
         }
 
-        public IList<ImportedDataPoint> ReadFromDatabase(string fileName)
+        public IList<ImportedDataPoint> ReadFromDatabase(string folderLocation, string fileName)
         {
-            var fileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,fileName);
+            var fileLocation = Path.Combine(folderLocation,fileName);
             var sqliteConnectionString = new SqliteConnectionStringBuilder
             {
                 DataSource = fileLocation
@@ -41,16 +41,37 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
                     var insertCommand = connection.CreateCommand();
                     insertCommand.Transaction = transaction;
                     insertCommand.CommandText = SelectCommand;
-
-                    using (var dataReader = insertCommand.ExecuteReader()) {
-                        while (dataReader.Read()) {
-                            importedData.Add(new ImportedDataPoint
+                    try
+                    {
+                        using (var dataReader = insertCommand.ExecuteReader())
+                        {
+                            while (dataReader.Read())
                             {
-                                TimeStamp = Convert.ToDateTime(dataReader[column1].ToString()),
-                                RawIntensity = Convert.ToInt32(dataReader[column2].ToString())
-                            });
+                                importedData.Add(new ImportedDataPoint
+                                {
+                                    TimeStampInUtc = Convert.ToDateTime(dataReader[column1].ToString()),
+                                    Bits = Convert.ToInt32(dataReader[column2].ToString())
+                                });
+                            }
                         }
                     }
+                    catch (SqliteException e)
+                    {
+                        insertCommand.CommandText = $"SELECT * FROM {table}";
+                        //might be legacy column names. If so, try again with legacy columns
+                        using (var dataReader = insertCommand.ExecuteReader())
+                        {
+                            while (dataReader.Read())
+                            {
+                                importedData.Add(new ImportedDataPoint
+                                {
+                                    TimeStampInUtc = Convert.ToDateTime(dataReader["timestamp"].ToString()),
+                                    Bits = Convert.ToInt32(dataReader["raw_intensity"].ToString())
+                                });
+                            }
+                        }
+                    }
+                   
 
                     transaction.Commit();
                 }
@@ -80,8 +101,8 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
                     for (var i = 0; i < dataPoints.Count; i++) {
                         var dataPoint = dataPoints[i];
                         insertCommand.CommandText += GetInsertCommand(i);
-                        insertCommand.Parameters.AddWithValue($"${column1}{i}", dataPoint.TimeStamp.ToString());
-                        insertCommand.Parameters.AddWithValue($"${column2}{i}", dataPoint.RawIntensity);
+                        insertCommand.Parameters.AddWithValue($"${column1}{i}", dataPoint.TimeStampInUtc.ToString());
+                        insertCommand.Parameters.AddWithValue($"${column2}{i}", dataPoint.Bits);
                     }
                     insertCommand.ExecuteNonQuery();
                     transaction.Commit();

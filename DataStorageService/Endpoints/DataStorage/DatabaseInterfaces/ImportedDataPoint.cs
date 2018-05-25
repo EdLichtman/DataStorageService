@@ -6,9 +6,9 @@ namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
     public class ImportedDataPoint
     {
         [Required]
-        public DateTime TimeStamp { get; set; }
+        public DateTime TimeStampInUtc { get; set; }
 
         [Required]
-        public int RawIntensity { get; set; }
+        public int Bits { get; set; }
     }
 }

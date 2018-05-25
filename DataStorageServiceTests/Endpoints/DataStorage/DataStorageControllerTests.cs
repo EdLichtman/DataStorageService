@@ -114,11 +114,11 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
                         Is.EqualTo(GetFileAsBase64String(currentTestSqliteFile)));
         }
 
-        [Test]
+        [Test, Ignore("Generates a weeks worth of data")]
         public void Can_import_data() {
             var expectedGeneratedRows = _dataPointRepository.GenerateWeeksWorthOfData(_appSettings);
 
-            var totalGeneratedRows = _dataStorageController.AggregateResults();
+            var totalGeneratedRows = _dataStorageController.AggregateResults(_appSettings.SqliteStorageFolderLocation);
             Assert.That(totalGeneratedRows, Is.EqualTo(expectedGeneratedRows));
         }
        

@@ -80,8 +80,8 @@ namespace DataStorageServiceTests.TestData
                     {
                         fileTypeData.Add(new ImportedDataPoint
                         {
-                            TimeStamp = DateTime.Now.AddDays(-7).AddMinutes(5 * dataPointIndex),
-                            RawIntensity = dataPointIndex
+                            TimeStampInUtc = DateTime.Now.AddDays(-7).AddMinutes(5 * dataPointIndex),
+                            Bits = dataPointIndex
                         });
                         totalCount++;
                     }

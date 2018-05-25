@@ -9,6 +9,7 @@ using StructureMap;
 using DataStorageService.AppSettings;
 using Microsoft.Data.Sqlite;
 using System.IO;
+using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
 
 namespace DataStorageService
 {
@@ -34,6 +35,7 @@ namespace DataStorageService
 
             var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
             var aggregateDataFileLocation = Path.Combine(applicationSettings.SqliteStorageFolderLocation, applicationSettings.AggregateSqliteFileName);
+            Directory.CreateDirectory(applicationSettings.SqliteStorageFolderLocation);
             File.Create(aggregateDataFileLocation);
             services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation)));
         }
@@ -64,8 +66,10 @@ namespace DataStorageService
                 {
                     _.AssemblyContainingType(typeof(Startup));
                     _.WithDefaultConventions();
+                    
                 });
-
+                config.For<IImportedDataPointRepository>().Use<SqliteImportedDataPointRepository>()
+                    .Ctor<IApplicationSettings>().IsTheDefault();
                 //Populate the container using the service collection
 
                 config.Populate(services);

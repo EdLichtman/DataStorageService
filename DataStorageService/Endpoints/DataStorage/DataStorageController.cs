@@ -89,9 +89,11 @@ namespace DataStorageService.Endpoints.DataStorage
 
 
         [HttpGet]
-        public int AggregateResults()
+        public int AggregateResults(string importLocation)
         {
-            var results = _aggregateDataRepository.ImportFolder(_appSettings.SqliteStorageFolderLocation);
+            if (importLocation == null)
+                importLocation = _appSettings.SqliteStorageFolderLocation;
+            var results = _aggregateDataRepository.ImportFolder(importLocation);
             return results.Count;
         }
 

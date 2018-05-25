@@ -3,6 +3,8 @@ using System.IO;
 using NUnit.Framework;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DataStorageServiceTests.TestData;
 using Microsoft.EntityFrameworkCore;
 using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
@@ -14,12 +16,12 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
     [TestFixture]
     public class AggregateDataRepositoryTests
     {
-        private readonly IImportedDataPointRepository _dataPointRepository;
-        private readonly IAggregateDataRepository _aggregateDataRepository;
-        private readonly IApplicationSettings _applicationSettings;
+        private IImportedDataPointRepository _dataPointRepository;
+        private IAggregateDataRepository _aggregateDataRepository;
+        private IApplicationSettings _applicationSettings;
 
-
-        public AggregateDataRepositoryTests()
+        [SetUp]
+        public void SetUp()
         {
             _applicationSettings = new TestApplicationSettings();
             TearDown();
@@ -40,6 +42,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
         [TearDown]
         public void TearDown()
         {
+            Thread.Sleep(500);
             var folderLocation = _applicationSettings.SqliteStorageFolderLocation;
             foreach (var file in Directory.GetFiles(folderLocation))
             {
@@ -73,7 +76,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             Assert.That(dataPointsRead, Is.Not.Empty);
         }
 
-        [Test]
+        [Test, Ignore("Takes too long to run and generates a weeks worth of fake data")]
         public void Can_import_data()
         {
             var weeksWorthOfDataCount = _dataPointRepository.GenerateWeeksWorthOfData(_applicationSettings);

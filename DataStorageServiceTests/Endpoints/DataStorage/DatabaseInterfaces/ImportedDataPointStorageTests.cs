@@ -65,7 +65,7 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
             var rawDataSet = GetTestData();
 
             _importedDataPointStorage.WriteRangeToDatabase(fileName, rawDataSet);
-            var importedData = _importedDataPointStorage.ReadFromDatabase(fileName);
+            var importedData = _importedDataPointStorage.ReadFromDatabase(sqliteFolderLocation, fileName);
             Assert.That(importedData.Count, Is.EqualTo(rawDataSet.Count));
         }
         [Test]
@@ -77,24 +77,24 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.DatabaseInterfaces
             var rawDataSet = GetTestData();
 
             _importedDataPointStorage.WriteRangeToDatabase(fileName, rawDataSet);
-            var importedData = _importedDataPointStorage.ReadFromDatabase(fileName);
-            Assert.That(importedData.FirstOrDefault(m => m.RawIntensity == 1).TimeStamp
-                        , Is.EqualTo(rawDataSet.FirstOrDefault(m => m.RawIntensity == 1).TimeStamp));
+            var importedData = _importedDataPointStorage.ReadFromDatabase(sqliteFolderLocation, fileName);
+            Assert.That(importedData.FirstOrDefault(m => m.Bits == 1).TimeStampInUtc
+                        , Is.EqualTo(rawDataSet.FirstOrDefault(m => m.Bits == 1).TimeStampInUtc));
         }
 
         private IList<ImportedDataPoint> GetTestData() {
             return new List<ImportedDataPoint> {
                 new ImportedDataPoint {
-                    RawIntensity = 1,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).Ticks).Truncate(TimeSpan.TicksPerSecond)
+                    Bits = 1,
+                    TimeStampInUtc = new DateTime(DateTime.Now.AddDays(-1).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 },
                 new ImportedDataPoint {
-                    RawIntensity = 2,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(5).Ticks).Truncate(TimeSpan.TicksPerSecond)
+                    Bits = 2,
+                    TimeStampInUtc = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(5).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 },
                 new ImportedDataPoint {
-                    RawIntensity = 3,
-                    TimeStamp = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(10).Ticks).Truncate(TimeSpan.TicksPerSecond)
+                    Bits = 3,
+                    TimeStampInUtc = new DateTime(DateTime.Now.AddDays(-1).AddSeconds(10).Ticks).Truncate(TimeSpan.TicksPerSecond)
                 }
             };
         }
