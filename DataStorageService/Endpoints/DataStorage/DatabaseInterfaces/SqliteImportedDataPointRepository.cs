@@ -3,8 +3,6 @@ using System.IO;
 using System.Collections.Generic;
 using DataStorageService.AppSettings;
 using Microsoft.Data.Sqlite;
-using DataStorageService.Endpoints.DataStorage.AggregateData;
-
 
 namespace DataStorageService.Endpoints.DataStorage.DatabaseInterfaces
 {

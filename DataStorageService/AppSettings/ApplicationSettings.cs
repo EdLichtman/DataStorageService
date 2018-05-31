@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using DataStorageService.Features.EmailClient;
 using DataStorageService.Helpers;
 namespace DataStorageService.AppSettings
 {

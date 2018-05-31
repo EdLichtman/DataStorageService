@@ -26,23 +26,23 @@ namespace DataStorageServiceTests.Endpoints.DataStorage.AggregateData
             _applicationSettings = new TestApplicationSettings();
             TearDown();
             var aggregateDataFileLocation = Path.Combine(_applicationSettings.SqliteStorageFolderLocation,_applicationSettings.AggregateSqliteFileName);
-            File.Create(aggregateDataFileLocation);
+            //File.Create(aggregateDataFileLocation);
 
             var sqliteOption = new DbContextOptionsBuilder<AggregateDataContext>()
                 .UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation))
                 .Options;
             var context = new AggregateDataContext(sqliteOption);
-            _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
             _dataPointRepository = new SqliteImportedDataPointRepository(_applicationSettings);
-
+            _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
         }
 
         [TearDown]
         public void TearDown()
         {
-            Thread.Sleep(500);
+            if (_aggregateDataRepository != null)
+                _aggregateDataRepository.Dispose();
             var folderLocation = _applicationSettings.SqliteStorageFolderLocation;
             foreach (var file in Directory.GetFiles(folderLocation))
             {

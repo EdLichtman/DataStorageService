@@ -10,6 +10,9 @@ using DataStorageService.AppSettings;
 using Microsoft.Data.Sqlite;
 using System.IO;
 using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
+using DataStorageService.Features.EmailClient;
+using DataStorageService.FrontEnd;
+using Microsoft.AspNetCore.Mvc.Razor;
 
 namespace DataStorageService
 {
@@ -27,6 +30,9 @@ namespace DataStorageService
         {
             ConfigureDatabase(services);
             services.AddMvc().AddControllersAsServices();
+ 
+            services.AddSingleton<IEmailConfiguration>(Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>());
+
             return ConfigureIoC(services);
         }
 
@@ -36,8 +42,10 @@ namespace DataStorageService
             var applicationSettings = dependencyContainer.GetInstance<IApplicationSettings>();
             var aggregateDataFileLocation = Path.Combine(applicationSettings.SqliteStorageFolderLocation, applicationSettings.AggregateSqliteFileName);
             Directory.CreateDirectory(applicationSettings.SqliteStorageFolderLocation);
-            File.Create(aggregateDataFileLocation);
+
             services.AddDbContext<AggregateDataContext>(ops => ops.UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation)));
+
+            
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

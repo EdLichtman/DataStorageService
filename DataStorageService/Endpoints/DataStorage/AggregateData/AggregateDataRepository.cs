@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace DataStorageService.Endpoints.DataStorage.AggregateData
 {
-    public class AggregateDataRepository : IAggregateDataRepository
+    public class AggregateDataRepository : IAggregateDataRepository, IDisposable
     {
         private readonly AggregateDataContext _database;
         private readonly IImportedDataPointRepository _importedDataPointRepository;
@@ -73,6 +73,13 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
             }
 
             return GetAllDataPoints();
+        }
+
+        public void Dispose()
+        {
+            _database?.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
     }
 }

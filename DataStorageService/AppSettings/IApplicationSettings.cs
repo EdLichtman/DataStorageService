@@ -1,4 +1,6 @@
 ﻿using System;
+using DataStorageService.Features.EmailClient;
+
 namespace DataStorageService.AppSettings
 {
     public interface IApplicationSettings

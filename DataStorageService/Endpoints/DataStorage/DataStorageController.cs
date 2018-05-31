@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using DataStorageService.AppSettings;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using DataStorageService.Helpers;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
+using DataStorageService.Features.EmailClient;
 
 namespace DataStorageService.Endpoints.DataStorage
 {
@@ -16,14 +18,18 @@ namespace DataStorageService.Endpoints.DataStorage
         private readonly string _sqliteStorageFolder;
         private readonly IApplicationSettings _appSettings;
         private readonly IAggregateDataRepository _aggregateDataRepository;
+        private readonly IEmailServiceLayer _emailServiceLayer;
 
-        public DataStorageController(IApplicationSettings appSettings, IAggregateDataRepository aggregateDataRepository)
+        public DataStorageController(
+            IApplicationSettings appSettings, 
+            IAggregateDataRepository aggregateDataRepository, 
+            IEmailServiceLayer emailServiceLayer)
         {
             _appSettings = appSettings;
             _aggregateDataRepository = aggregateDataRepository;
+            _emailServiceLayer = emailServiceLayer;
             _sqliteStorageFolder = _appSettings.SqliteStorageFolderLocation;
             Directory.CreateDirectory(_sqliteStorageFolder);
-
         }
 
         [HttpGet]
@@ -88,12 +94,18 @@ namespace DataStorageService.Endpoints.DataStorage
         }
 
 
-        [HttpGet]
-        public int AggregateResults(string importLocation)
+        [HttpPost]
+        public int AggregateResults(string importLocation, string fileName = "AggregateData.db")
         {
             if (importLocation == null)
                 importLocation = _appSettings.SqliteStorageFolderLocation;
             var results = _aggregateDataRepository.ImportFolder(importLocation);
+            var emailFileRequest = new EmailFileRequest
+            {
+                Name = fileName,
+                Location = AggregateDataContext.GetDbLocation(Path.Combine(_sqliteStorageFolder, "AggregateData.db"))
+            };
+            _emailServiceLayer.SendFile("", emailFileRequest, "");
             return results.Count;
         }
 
@@ -102,5 +114,11 @@ namespace DataStorageService.Endpoints.DataStorage
             
         }
 
+    }
+
+    public class EmailFileRequest
+    {
+        public string Name { get; set; }
+        public string Location { get; set; }
     }
 }

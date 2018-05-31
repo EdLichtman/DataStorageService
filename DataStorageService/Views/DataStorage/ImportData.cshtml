@@ -1,0 +1,40 @@
+﻿@model object
+
+@{
+    ViewBag.Title = "title";
+    //Layout = "_Layout";
+}
+
+<h2>Import Data Below</h2>
+<div>
+    <div>Import Location</div>
+    <input type="text" id="fileLocation" />
+</div>
+
+<div>
+    <div>File Name</div>
+    <input type="text" id="fileName"/>
+</div>
+<button id="importButton">Import Data</button>
+
+<script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous"></script>
+
+<script>
+    $("#importButton").on('click', () => {
+        var queryParameters = 'importLocation=' + $('#fileLocation').val()
+            + '&fileName=' + $('#fileName').val();
+        $.ajax({
+            type: 'post',
+            url: '/api/DataStorage/AggregateResults?' + queryParameters,
+            success: data => {
+                alert('Success! Look in your inbox');
+            },
+            error: data => {
+                alert('An error occurred. Please contact your IT department (Eddie)');
+            }
+        });
+    })
+</script>

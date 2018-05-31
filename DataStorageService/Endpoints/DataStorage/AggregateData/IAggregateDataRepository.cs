@@ -10,5 +10,6 @@ namespace DataStorageService.Endpoints.DataStorage.AggregateData
         IList<AggregateDataPoint> GetAllDataPoints();
 
         IList<AggregateDataPoint> ImportFolder(string folderLocation);
+        void Dispose();
     }
 }

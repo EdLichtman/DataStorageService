@@ -8,6 +8,7 @@ using DataStorageService.Endpoints.DataStorage.DatabaseInterfaces;
 using DataStorageService.AppSettings;
 using Microsoft.EntityFrameworkCore;
 using DataStorageService.Endpoints.DataStorage.AggregateData;
+using DataStorageService.Features.EmailClient;
 
 
 namespace DataStorageServiceTests.Endpoints.DataStorage
@@ -15,11 +16,13 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
     [TestFixture]
     public class DataStorageControllerTests
     {
-        private readonly IApplicationSettings _appSettings;
-        private readonly IImportedDataPointRepository _dataPointRepository;
-        private readonly DataStorageController _dataStorageController;
+        private IApplicationSettings _appSettings;
+        private IImportedDataPointRepository _dataPointRepository;
+        private DataStorageController _dataStorageController;
+        private AggregateDataRepository _aggregateDataRepository;
 
-        public DataStorageControllerTests()
+        [SetUp]
+        public void SetUp()
         {
             _appSettings = new TestApplicationSettings();
             _dataPointRepository = new SqliteImportedDataPointRepository(_appSettings);
@@ -31,12 +34,13 @@ namespace DataStorageServiceTests.Endpoints.DataStorage
                 .UseSqlite(AggregateDataContext.GetSqliteString(aggregateDataFileLocation))
                 .Options;
             var context = new AggregateDataContext(sqliteOption);
-            var aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
+            _aggregateDataRepository = new AggregateDataRepository(context, _dataPointRepository);
 
-            _dataStorageController = new DataStorageController(_appSettings, aggregateDataRepository);
+            _dataStorageController = new DataStorageController(_appSettings, _aggregateDataRepository, new EmailServiceLayer(new EmailConfiguration(), new EmailService(new EmailConfiguration())));
         }
         [TearDown]
         public void TearDown() {
+            _aggregateDataRepository.Dispose();
             try {
                 var folderLocation = _appSettings.SqliteStorageFolderLocation;
                 foreach (var file in Directory.GetFiles(folderLocation))
